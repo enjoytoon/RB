@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ч·Ч">
+<meta name="theme-color" content="#1a1a2e">
+<meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-512.png">
+<title>Червоне · Чорне</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+html,body{height:100%}
+body{position:fixed;inset:0;overflow:hidden;background:#1a1a2e;color:#e8e8f2;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;touch-action:manipulation;overscroll-behavior:none}
+button{font-family:inherit;cursor:pointer;outline:none;color:inherit;background:none;border:0}
+#app{height:100%;max-width:440px;margin:0 auto;display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top,0px) + 8px) 12px calc(env(safe-area-inset-bottom,0px) + 14px)}
+header{display:flex;align-items:center;gap:6px}
+h1{font-size:12px;letter-spacing:2px;font-weight:700;color:#8f8fb3;text-transform:uppercase;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icoBtn{width:38px;height:38px;border-radius:12px;background:#252547;color:#c9c9e8;font-size:18px;line-height:1;flex:none}
+.icoBtn:active{transform:scale(.9)}
+#balRow{display:flex;align-items:baseline;justify-content:center;gap:10px;margin:8px 0 2px}
+#balRow .cur{font-size:15px;color:#8f8fb3}
+#bal{font-size:34px;font-weight:800;letter-spacing:.5px}
+#rec{font-size:11px;color:#8f8fb3}
+#phaseBar{margin-top:8px;background:#20203c;border-radius:12px;padding:8px 12px 10px;position:relative;overflow:hidden}
+#phRow{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:700}
+#phLbl{color:#2dd4a7;letter-spacing:.5px}
+body.spinPhase #phLbl{color:#ffd166}
+#phSec{font-variant-numeric:tabular-nums;color:#dcdcf0}
+#phTrack{margin-top:7px;height:4px;border-radius:2px;background:#31315a;overflow:hidden}
+#phFill{height:100%;border-radius:2px;background:#2dd4a7;width:100%;transition:width .25s linear}
+body.spinPhase #phFill{background:#ffd166}
+#big{min-height:158px;background:#20203c;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:14px;margin-top:10px;text-align:center}
+.bigNum{width:88px;height:88px;border-radius:50%;font-size:40px;font-weight:900;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.45)}
+.bigNum.r{background:radial-gradient(circle at 32% 28%,#ff4a4a,#b00505)}
+.bigNum.b{background:radial-gradient(circle at 32% 28%,#3a3a44,#0a0a0e);border:1px solid #44444e}
+.bigNum.g{background:radial-gradient(circle at 32% 28%,#2ecf7d,#067a3e)}
+.bigNum.pop{animation:pop .5s cubic-bezier(.3,1.6,.5,1)}
+@keyframes pop{0%{transform:scale(.3);opacity:0}100%{transform:scale(1);opacity:1}}
+.bigWord{font-size:12px;letter-spacing:3px;color:#a9a9cc;font-weight:800}
+.bigRes{font-size:19px;font-weight:900}
+.bigRes .ok{color:#2dd4a7}
+.bigRes .bad{color:#ff6f6f}
+.bigSub{font-size:12px;color:#8f8fb3}
+.wheelBig{width:80px;height:80px;border-radius:50%;background:conic-gradient(#e01515 0 12.5%,#17171c 12.5% 25%,#e01515 25% 37.5%,#17171c 37.5% 50%,#e01515 50% 62.5%,#17171c 62.5% 75%,#e01515 75% 87.5%,#17171c 87.5% 100%);animation:rot 1.1s linear infinite;position:relative}
+.wheelBig::after{content:'';position:absolute;inset:16px;border-radius:50%;background:#20203c}
+@keyframes rot{to{transform:rotate(360deg)}}
+#histRow{display:flex;gap:3px;margin-top:8px}
+.hq{flex:1;aspect-ratio:1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;min-width:0}
+.hq.r{background:#c01111}
+.hq.b{background:#111116;border:1px solid #3a3a44}
+.hq.g{background:#0d8a49}
+#ladder{margin-top:8px;background:#20203c;border-radius:12px;padding:9px 12px;font-size:12.5px;color:#a9a9cc;line-height:1.5;text-align:center;min-height:40px}
+#ladder b{color:#e8e8f2}
+.warn{color:#ffd166}
+.ok{color:#2dd4a7}
+.bad{color:#ff6f6f}
+#actRow{display:flex;gap:8px;margin-top:10px;align-items:stretch}
+#btnDbl{flex:1.2;padding:9px 4px;border-radius:12px;background:#20203c;border:2px solid #31315a;color:#c9c9e8;font-size:14px;font-weight:900;letter-spacing:.5px}
+#btnDbl.on{border-color:#ffd166;color:#ffd166;background:rgba(255,209,102,.12)}
+#btnDbl.off{opacity:.4}
+#btnDbl small{display:block;font-size:9.5px;font-weight:700;letter-spacing:.3px;margin-top:2px;color:#8f8fb3}
+#btnDbl.on small{color:#ffd166}
+#btnDbl:active{transform:scale(.96)}
+#btnSkip{flex:1;padding:9px 4px;border-radius:12px;background:#252547;color:#a9a9cc;font-size:12.5px;font-weight:700}
+#btnSkip:active{transform:scale(.95)}
+#fakeRow{display:flex;gap:10px;margin-top:8px}
+.fakeBtn{flex:1;padding:10px 0 8px;border-radius:12px;background:#2c2c3f;border:1px dashed #4a4a66;color:#9a9ab8;font-size:13px;font-weight:800;letter-spacing:1px}
+.fakeBtn:active{transform:scale(.97)}
+.fakeBtn .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.dot.r{background:#c01111}
+.dot.b{background:#0a0a0e;border:1px solid #55555f}
+.fakeSub{display:block;font-size:9px;font-weight:700;opacity:.65;letter-spacing:1.5px;margin-top:2px}
+#betRow{display:flex;gap:10px;margin-top:10px}
+.betBtn{flex:1;padding:16px 0 13px;border-radius:16px;font-size:19px;font-weight:900;letter-spacing:1.5px;color:#fff;box-shadow:0 5px 16px rgba(0,0,0,.35)}
+.betBtn:active{transform:scale(.97)}
+#btnRed{background:linear-gradient(160deg,#e01515,#9c0000)}
+#btnBlack{background:linear-gradient(160deg,#26262a,#050506);border:1px solid #3f3f46}
+.betSub{display:block;font-size:10.5px;font-weight:800;opacity:.8;letter-spacing:1px;margin-top:3px}
+#tagRow{margin-top:10px;display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:wrap}
+.tagLbl{font-size:11px;color:#8f8fb3;letter-spacing:.5px}
+.tag{padding:9px 11px;border-radius:11px;background:#252547;color:#c9c9e8;font-size:14px;font-weight:800;border:2px solid transparent;letter-spacing:.5px}
+.tag.on{border-color:#ffd166;color:#ffd166;background:rgba(255,209,102,.12)}
+.tag:active{transform:scale(.93)}
+.tagMini{font-size:12px;background:#252547;border:1px solid #ffd166;color:#ffd166;border-radius:7px;padding:1px 7px;vertical-align:2px;letter-spacing:.5px}
+.tagChip{min-width:48px;text-align:center;background:#252547;border:1px solid #ffd166;color:#ffd166;border-radius:8px;padding:5px 6px;font-size:12.5px;letter-spacing:.5px}
+.tagTxt{font-size:12.5px;color:#c9c9e0;line-height:1.4}
+#toast{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);left:50%;transform:translate(-50%,-140%);max-width:86%;background:#33335a;color:#fff;font-size:14px;font-weight:700;padding:11px 16px;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.5);transition:transform .3s cubic-bezier(.3,1.3,.5,1);z-index:60;text-align:center;pointer-events:none}
+#toast.on{transform:translate(-50%,0)}
+#toast.good{background:#0d7a52}
+#toast.bad{background:#9c1220}
+#toast.gold{background:#8a6d00}
+#toast.info{background:#33335a}
+.modal{position:fixed;inset:0;z-index:40;background:rgba(8,8,18,.66);display:flex;align-items:flex-end;justify-content:center;opacity:1;transition:opacity .2s}
+.modal.hidden{opacity:0;pointer-events:none}
+.sheet{width:100%;max-width:440px;max-height:88vh;overflow-y:auto;background:#23233d;border-radius:22px 22px 0 0;padding:20px 18px calc(env(safe-area-inset-bottom,0px) + 18px);transition:transform .25s}
+.modal.hidden .sheet{transform:translateY(40px)}
+.sheet h2{font-size:18px;margin-bottom:12px;text-align:center}
+.row{display:flex;align-items:center;justify-content:space-between;margin:12px 0;gap:10px}
+.lbl{font-size:14.5px;font-weight:600}
+.sub{display:block;font-size:11.5px;font-weight:400;color:#9a9ac0;margin-top:2px}
+.step{display:flex;align-items:center;gap:10px}
+.step button{width:42px;height:42px;border-radius:12px;background:#33335a;color:#fff;font-size:21px;font-weight:700}
+.step button:active{transform:scale(.9)}
+.step b{min-width:26px;text-align:center;font-size:18px}
+#inBal{width:110px;padding:10px;border-radius:10px;border:1px solid #44446e;background:#1a1a2e;color:#fff;font-size:16px;font-weight:700;text-align:right}
+#btnApplyBal{padding:10px 12px;border-radius:10px;background:#33335a;font-size:13px;font-weight:700}
+.planPrev{font-size:12px;color:#a9a9cc;background:rgba(255,209,102,.06);border:1px solid rgba(255,209,102,.2);padding:9px 11px;border-radius:11px;line-height:1.5;margin:10px 0}
+.neut{width:100%;margin-top:2px;padding:12px;border-radius:12px;background:#33335a;color:#dcdcf0;font-size:13.5px;font-weight:700}
+.neut:active{transform:scale(.98)}
+.defLine{font-size:11.5px;color:#9a9ac0;text-align:center;margin-top:7px;line-height:1.4}
+.btnRow{display:flex;gap:8px;margin-top:12px}
+.dngr{flex:1;padding:12px;border-radius:12px;background:none;border:1.5px solid #c8102e;color:#ff6f6f;font-size:13px;font-weight:600}
+#btnCloseSet,#btnCloseStats{width:100%;margin-top:10px;padding:14px;border-radius:14px;background:#c8102e;color:#fff;font-size:16px;font-weight:700}
+.stBig{font-size:14px;margin:8px 0;line-height:1.4}
+.stRow{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:12.5px}
+.stEmpty{font-size:12.5px;color:#8f8fb3;text-align:center;margin:10px 0}
+.stHr{border-top:1px solid #33335a;margin:12px 0}
+#fx{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:50}
+#fx i{position:absolute;top:-14px;border-radius:2px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(108vh) rotate(var(--r,360deg))}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>Червоне · Чорне</h1>
+    <button class="icoBtn" id="btnQuickReset" aria-label="Скинути до дефолту">&#8634;</button>
+    <button class="icoBtn" id="btnStats" aria-label="Статистика">&#128202;</button>
+    <button class="icoBtn" id="btnSettings" aria-label="Налаштування">&#x2699;&#xFE0E;</button>
+  </header>
+
+  <div id="balRow"><span class="cur">Баланс</span><b id="bal">310</b><span class="cur">₴</span><span id="rec"></span></div>
+
+  <div id="phaseBar">
+    <div id="phRow"><span id="phLbl">Ставки відкрито</span><span id="phSec">15с</span></div>
+    <div id="phTrack"><div id="phFill"></div></div>
+  </div>
+
+  <div id="big"></div>
+  <div id="histRow"></div>
+  <div id="ladder"></div>
+
+  <div id="actRow">
+    <button id="btnDbl">×2 СТАВКА<small id="dblSub"></small></button>
+    <button id="btnSkip">Пропустити ▸▸</button>
+  </div>
+
+  <div id="betRow">
+    <button class="betBtn" id="btnRed">ЧЕРВОНЕ<span class="betSub" id="subRed"></span></button>
+    <button class="betBtn" id="btnBlack">ЧОРНЕ<span class="betSub" id="subBlack"></span></button>
+  </div>
+
+  <div id="fakeRow">
+    <button class="fakeBtn" id="btnFakeRed"><span class="dot r"></span>ЧЕРВОНЕ<span class="fakeSub">ФЕЙК · БЕЗ ГРОШЕЙ</span></button>
+    <button class="fakeBtn" id="btnFakeBlack"><span class="dot b"></span>ЧОРНЕ<span class="fakeSub">ФЕЙК · БЕЗ ГРОШЕЙ</span></button>
+  </div>
+
+  <div id="tagRow"></div>
+</div>
+
+<div id="toast"></div>
+
+<div id="modalSet" class="modal hidden">
+  <div class="sheet">
+    <h2>Налаштування</h2>
+    <div class="row">
+      <div class="lbl">Рахунок, ₴<span class="sub">скільки грошей у грі</span></div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <input id="inBal" type="number" inputmode="numeric" min="0" max="99999999">
+        <button id="btnApplyBal">OK</button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="lbl">Ставок підряд<span class="sub">кроків у серії</span></div>
+      <div class="step"><button id="sMinus">&#8722;</button><b id="vSteps">5</b><button id="sPlus">+</button></div>
+    </div>
+    <div class="planPrev" id="planPrev"></div>
+    <button class="neut" id="btnSaveDef">&#128190; Зберегти поточне як дефолт</button>
+    <div class="defLine" id="defLine"></div>
+    <div class="btnRow">
+      <button class="dngr" id="btnResetStats">Скинути статистику</button>
+      <button class="dngr" id="btnResetAll">Скинути все</button>
+    </div>
+    <button id="btnCloseSet">Готово</button>
+  </div>
+</div>
+
+<div id="modalStats" class="modal hidden">
+  <div class="sheet">
+    <h2>Статистика</h2>
+    <div id="stTop"></div>
+    <div class="stHr"></div>
+    <div class="lbl" style="margin-bottom:6px">За мітками</div>
+    <div id="stTags"></div>
+    <button id="btnCloseStats">Готово</button>
+  </div>
+</div>
+
+<div id="fx"></div>
+
+<script>
+(function(){
+'use strict';
+var FAST=/(^|[?&])fast/.test(location.search);
+var BET_MS=FAST?4000:15000, SPIN_MS=FAST?3000:15000;
+var SUSPENSE=1000, LATE_CUT=1200;
+var KEY='redblack-v1', UNIT=5, HKEEP=30, HSHOW=14, MAXSTEPS=8;
+var TAGS=['100%','++','+','?','??','M','MM'];
+var REDS={1:1,3:1,5:1,7:1,9:1,12:1,14:1,16:1,18:1,19:1,21:1,23:1,25:1,27:1,30:1,32:1,34:1,36:1};
+function colorOf(n){return n===0?'g':(REDS[n]?'r':'b');}
+function rnd37(){return Math.floor(Math.random()*37);}
+function fmt(n){
+  var s=String(Math.round(Math.abs(n)));
+  var out=s.replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+  return (n<0?'−':'')+out;
+}
+function ukr(n,one,few,many){var a=n%10,b=n%100;if(a===1&&b!==11)return one;if(a>=2&&a<=4&&(b<10||b>=20))return few;return many;}
+function $(id){return document.getElementById(id);}
+function pct(w,n){return n?Math.round(w/n*100)+'%':'—';}
+function wordFor(c){return c==='r'?'ЧЕРВОНЕ':(c==='b'?'ЧОРНЕ':'ЗЕРО');}
+
+/* ---- план ставок: як у «Трьох столах» — кратність 5, каскад залишку ---- */
+function planFor(balance,wantSteps){
+  var n,base,factor,bets,rem,k,j,t,cost;
+  for(n=Math.min(MAXSTEPS,Math.max(1,wantSteps));n>=1;n--){
+    factor=(1<<n)-1;
+    base=Math.floor(balance/factor/UNIT)*UNIT;
+    if(base<UNIT)continue;
+    bets=[];
+    for(k=0;k<n;k++)bets.push(base<<k);
+    rem=balance-base*factor;
+    for(k=0;k<n;k++){
+      cost=UNIT*((1<<(n-k))-1);
+      t=Math.floor(rem/cost);
+      if(t>0){
+        for(j=k;j<n;j++)bets[j]+=UNIT*t*(1<<(j-k));
+        rem-=t*cost;
+      }
+    }
+    return {bets:bets,committed:balance-rem,leftover:rem,steps:n,reduced:n<wantSteps};
+  }
+  return null;
+}
+
+/* ---- стан ---- */
+function seedHist(){var a=[],i;for(i=0;i<HSHOW;i++)a.push(rnd37());return a;}
+function freshStats(){return {real:{n:0,w:0},fake:{n:0,w:0},profit:0,maxBal:310,million:false,tags:{},untag:{n:0,w:0}};}
+function defaults(){return {v:1,balance:310,steps:5,startBal:310,
+  def:{balance:310,steps:5},
+  plan:null,step:0,dbl:false,
+  hist:seedHist(),
+  phase:'bet',phaseEnd:Date.now()+BET_MS,
+  queued:null,pendingBet:null,last:null,revealAt:0,tagSel:null,stats:freshStats()};}
+function num(x,d){return (typeof x==='number'&&isFinite(x))?x:d;}
+function validPlan(p){
+  return !!(p&&typeof p==='object'
+    &&typeof p.steps==='number'&&p.steps>=1&&p.steps<=MAXSTEPS
+    &&Array.isArray(p.bets)&&p.bets.length===p.steps&&p.bets.every(function(x){return typeof x==='number'&&x>0;})
+    &&typeof p.committed==='number');
+}
+function validWL(g){return !!(g&&typeof g==='object'&&typeof g.n==='number'&&typeof g.w==='number');}
+function load(){
+  var d=null,S=defaults();
+  try{d=JSON.parse(localStorage.getItem(KEY));}catch(e){}
+  if(!d||typeof d!=='object')return S;
+  S.balance=Math.max(0,Math.round(num(d.balance,310)));
+  S.steps=Math.min(MAXSTEPS,Math.max(1,Math.round(num(d.steps,5))));
+  if(d.def&&typeof d.def==='object'){
+    S.def.balance=Math.max(0,Math.round(num(d.def.balance,310)));
+    S.def.steps=Math.min(MAXSTEPS,Math.max(1,Math.round(num(d.def.steps,5))));
+  }
+  S.startBal=Math.max(0,Math.round(num(d.startBal,S.def.balance)));
+  if(validPlan(d.plan))S.plan=d.plan;
+  S.step=Math.max(0,Math.round(num(d.step,0)));
+  if(!S.plan||S.step>=S.plan.steps){S.plan=null;S.step=0;}
+  S.dbl=!!d.dbl;
+  if(Array.isArray(d.hist)&&d.hist.length>0&&d.hist.every(function(x){return typeof x==='number'&&x>=0&&x<=36;}))S.hist=d.hist.slice(0,HKEEP);
+  if(d.phase==='spin')S.phase='spin';
+  S.phaseEnd=num(d.phaseEnd,Date.now()+BET_MS);
+  if(d.queued&&typeof d.queued==='object'&&(d.queued.color==='r'||d.queued.color==='b')){
+    S.queued={color:d.queued.color,mode:d.queued.mode==='real'?'real':'fake',tag:TAGS.indexOf(d.queued.tag)>=0?d.queued.tag:null,dbl:!!d.queued.dbl};
+  }
+  if(d.pendingBet&&typeof d.pendingBet==='object'&&(d.pendingBet.color==='r'||d.pendingBet.color==='b')){
+    S.pendingBet={color:d.pendingBet.color,mode:d.pendingBet.mode==='real'?'real':'fake',
+      tag:TAGS.indexOf(d.pendingBet.tag)>=0?d.pendingBet.tag:null,dbl:!!d.pendingBet.dbl,
+      fireAt:num(d.pendingBet.fireAt,Date.now())};
+  }
+  if(d.last&&typeof d.last==='object'&&typeof d.last.n==='number'&&d.last.n>=0&&d.last.n<=36)S.last=d.last;
+  S.revealAt=num(d.revealAt,0);
+  S.tagSel=TAGS.indexOf(d.tagSel)>=0?d.tagSel:null;
+  if(d.stats&&typeof d.stats==='object'){
+    var st=S.stats;
+    if(validWL(d.stats.real))st.real={n:Math.round(d.stats.real.n),w:Math.round(d.stats.real.w)};
+    if(validWL(d.stats.fake))st.fake={n:Math.round(d.stats.fake.n),w:Math.round(d.stats.fake.w)};
+    if(validWL(d.stats.untag))st.untag={n:Math.round(d.stats.untag.n),w:Math.round(d.stats.untag.w)};
+    st.profit=num(d.stats.profit,0);
+    st.maxBal=Math.max(S.balance,num(d.stats.maxBal,S.balance));
+    st.million=!!d.stats.million;
+    if(d.stats.tags&&typeof d.stats.tags==='object'){
+      TAGS.forEach(function(tg){
+        if(validWL(d.stats.tags[tg]))st.tags[tg]={n:Math.round(d.stats.tags[tg].n),w:Math.round(d.stats.tags[tg].w)};
+      });
+    }
+  }
+  return S;
+}
+var S=load();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+
+var revealShown=!S.revealAt||Date.now()>=S.revealAt;
+var pendMillion=false;
+var popAt=0;
+var snap=null; /* що показувати, поки крутиться: старий баланс, щоб не спалити результат */
+function inSuspense(){return !!(S.revealAt&&Date.now()<S.revealAt);}
+function pushHist(n){S.hist.unshift(n);if(S.hist.length>HKEEP)S.hist.length=HKEEP;}
+
+/* ---- ставка: миттєвий результат ---- */
+function doBet(color,mode,tag,dbl){
+  var amount=0,double=false;
+  if(mode==='real'){
+    if(!S.plan){
+      var pl=planFor(S.balance,S.steps);
+      if(!pl){toast('Замало грошей для реальної — задай рахунок у ⚙','bad');return;}
+      S.plan=pl;S.step=0;
+    }
+    S.dbl=false;
+    double=!!dbl&&(S.plan.steps-S.step)>=2;
+    amount=S.plan.bets[S.step]+(double?S.plan.bets[S.step+1]:0);
+  }else{
+    var pv=S.plan||planFor(S.balance,S.steps);
+    amount=pv?pv.bets[Math.min(S.step,pv.steps-1)]:0;
+  }
+  snap={bal:S.balance}; /* до розіграшу — щоб баланс не видав результат раніше за цифру */
+  var n=rnd37();
+  pushHist(n);
+  var hit=colorOf(n)===color;
+  var delta=0,bust=false,stepFrom=S.step,stepsTotal=S.plan?S.plan.steps:S.steps;
+  if(mode==='real'){
+    if(hit){
+      delta=amount;S.balance+=amount;
+      S.plan=null;S.step=0;
+    }else{
+      delta=-amount;S.balance-=amount;
+      S.step+=double?2:1;
+      if(S.step>=S.plan.steps){bust=true;S.plan=null;S.step=0;}
+    }
+    S.stats.real.n++;if(hit)S.stats.real.w++;
+    S.stats.profit+=delta;
+    if(S.balance>S.stats.maxBal)S.stats.maxBal=S.balance;
+    if(S.balance>=1000000&&!S.stats.million){S.stats.million=true;pendMillion=true;}
+  }else{
+    S.stats.fake.n++;if(hit)S.stats.fake.w++;
+  }
+  var tg;
+  if(tag){tg=S.stats.tags[tag];if(!tg)tg=S.stats.tags[tag]={n:0,w:0};}
+  else tg=S.stats.untag;
+  tg.n++;if(hit)tg.w++;
+  S.last={n:n,kind:'bet',betColor:color,mode:mode,hit:hit,amount:amount,delta:delta,
+    tag:tag||null,bust:bust,double:double,stepFrom:stepFrom+1,
+    stepDone:stepFrom+(double?2:1),stepsTotal:stepsTotal};
+  S.revealAt=Date.now()+SUSPENSE;
+  revealShown=false;
+  S.phase='bet';
+  S.phaseEnd=S.revealAt+BET_MS;
+  save();render();
+}
+function tapBet(color,mode){
+  if(inSuspense())return;
+  if(S.pendingBet){toast('Зачекай — ставка вже в грі','info');return;}
+  if(S.queued){toast('Ставку вже прийнято — чекаємо число','info');return;}
+  var dbl=mode==='real'&&S.dbl;
+  if(S.phase==='spin'){
+    /* кулька вже крутиться: це число не рахується, ставка на наступне */
+    S.queued={color:color,mode:mode,tag:S.tagSel,dbl:dbl};
+    S.tagSel=null;
+    if(mode==='real')S.dbl=false;
+    S.phaseEnd=Math.min(S.phaseEnd,Date.now()+LATE_CUT);
+    toast('Це число не рахується — твоя ставка на наступне','info');
+    save();render();
+    return;
+  }
+  var tag=S.tagSel;S.tagSel=null;
+  doBet(color,mode,tag,dbl);
+}
+function skipRound(){
+  if(inSuspense())return;
+  if(S.pendingBet||S.queued)return;
+  if(S.phase==='spin'){
+    S.phaseEnd=Math.min(S.phaseEnd,Date.now()+400);
+    return;
+  }
+  var n=rnd37();
+  pushHist(n);
+  S.last={n:n,kind:'skip'};
+  S.revealAt=Date.now()+600;
+  revealShown=false;
+  S.phase='bet';
+  S.phaseEnd=S.revealAt+BET_MS;
+  save();render();
+}
+
+/* ---- фоновий ритм казино ---- */
+function catchUp(){
+  var changed=false,spins=0,maxDur=Math.max(BET_MS,SPIN_MS);
+  if(S.phaseEnd-Date.now()>maxDur+SUSPENSE+60000){
+    S.phaseEnd=Date.now()+(S.phase==='bet'?BET_MS:SPIN_MS);changed=true;
+  }
+  while(Date.now()>=S.phaseEnd&&spins<220){
+    if(S.phase==='bet'){S.phase='spin';S.phaseEnd+=SPIN_MS;}
+    else{
+      pushHist(rnd37());
+      popAt=Date.now();
+      if(S.queued){
+        /* показуємо число, що НЕ рахується, потім окремо — число ставки */
+        S.last={n:S.hist[0],kind:'late'};
+        var q=S.queued;S.queued=null;
+        S.pendingBet={color:q.color,mode:q.mode,tag:q.tag,dbl:!!q.dbl,fireAt:Date.now()+1500};
+        S.phase='bet';S.phaseEnd=Date.now()+1500+BET_MS;
+        save();render();
+        return;
+      }
+      S.last={n:S.hist[0],kind:'idle'};
+      S.phase='bet';S.phaseEnd+=BET_MS;spins++;
+    }
+    changed=true;
+    if(spins>=10&&!S.queued&&Date.now()>=S.phaseEnd){
+      S.phase='bet';S.phaseEnd=Date.now()+BET_MS;
+      break;
+    }
+  }
+  if(changed){save();render();}
+}
+
+/* ---- рендер ---- */
+function render(){
+  var showBal=(inSuspense()&&snap)?snap.bal:S.balance;
+  $('bal').textContent=fmt(showBal);
+  var diff=showBal-S.startBal;
+  var sign=diff>=0?'+':'−';
+  var pctTxt=S.startBal>0?' · '+sign+Math.round(Math.abs(diff)/S.startBal*100)+'%':'';
+  $('rec').innerHTML='<b class="'+(diff>=0?'ok':'bad')+'">'+sign+fmt(Math.abs(diff))+' ₴'+pctTxt+'</b>';
+  renderBig();
+  renderHist();
+  renderLadder();
+  renderControls();
+  renderTags();
+  renderTimer();
+}
+function renderBig(){
+  var sus=inSuspense(),html='';
+  if(sus||S.phase==='spin'){
+    var lbl=sus?'Крутимо…':(S.queued?'Прийнято! Це число не рахується — ставка на наступне':'Крутиться… тапни колір — ставка на наступне число');
+    html='<div class="wheelBig"></div><div class="bigSub">'+lbl+'</div>';
+  }else{
+    var L=S.last,n=L?L.n:S.hist[0];
+    var pop=(Date.now()-popAt<1500)?' pop':'';
+    html='<div class="bigNum '+colorOf(n)+pop+'">'+n+'</div>'
+      +'<div class="bigWord">'+wordFor(colorOf(n))+'</div>';
+    if(L&&L.kind==='bet'){
+      var res;
+      if(L.mode==='real'){
+        res=L.hit?'✓ ВГАДАВ <span class="ok">+'+fmt(L.delta)+' ₴</span>'
+                 :'✗ МИМО <span class="bad">−'+fmt(L.amount)+' ₴</span>';
+      }else{
+        res=(L.hit?'✓ ВГАДАВ':'✗ МИМО')+' <span class="bigSub">(фейк)</span>';
+      }
+      html+='<div class="bigRes">'+res
+        +(L.double?' <span class="tagMini">×2</span>':'')
+        +(L.tag?' <span class="tagMini">'+L.tag+'</span>':'')+'</div>';
+      if(L.bust)html+='<div class="bigSub bad">💥 Серія програна — драбина спочатку</div>';
+      else if(L.mode==='real'&&!L.hit){
+        html+='<div class="bigSub">'+(L.double
+          ?('кроки '+L.stepFrom+'–'+L.stepDone+' з '+L.stepsTotal+' мимо')
+          :('крок '+L.stepDone+' з '+L.stepsTotal+' мимо'))+'</div>';
+      }
+    }else if(L&&L.kind==='late'){
+      html+='<div class="bigRes"><span class="warn">⏭ НЕ РАХУЄТЬСЯ</span></div>'
+        +'<div class="bigSub">не встиг на це число — твоя ставка на наступне…</div>';
+    }else if(L&&L.kind==='skip'){
+      html+='<div class="bigSub">пропущено — не рахується</div>';
+    }else{
+      html+='<div class="bigSub">Став на червоне чи чорне 👇</div>';
+    }
+  }
+  $('big').innerHTML=html;
+}
+function renderHist(){
+  var html='',hh=S.hist.slice(0,HSHOW),i;
+  for(i=0;i<hh.length;i++)html+='<span class="hq '+colorOf(hh[i])+'">'+hh[i]+'</span>';
+  $('histRow').innerHTML=html;
+}
+function renderLadder(){
+  /* поки крутиться — не оновлюємо, щоб драбина не видала результат */
+  if(inSuspense()&&$('ladder').innerHTML!=='')return;
+  var html;
+  if(S.plan){
+    html='Серія: крок <b>'+(S.step+1)+' з '+S.plan.steps+'</b> · ставка <b>'+fmt(S.plan.bets[S.step])+' ₴</b>'
+      +' · зроблено '+S.step+' · лишилось '+(S.plan.steps-S.step)
+      +'<br>План: '+S.plan.bets.map(fmt).join(' → ');
+  }else{
+    var pl=planFor(S.balance,S.steps);
+    if(pl){
+      html='Нова серія: ставка <b>'+fmt(pl.bets[0])+' ₴</b> · план '+pl.bets.map(fmt).join(' → ')
+        +' · банк '+fmt(pl.committed)+' ₴'
+        +(pl.leftover?' (залишок '+fmt(pl.leftover)+' ₴)':'')
+        +(pl.reduced?' · <span class="warn">вистачає на '+pl.steps+' '+ukr(pl.steps,'крок','кроки','кроків')+'</span>':'');
+    }else{
+      html='<span class="warn">Замало грошей для реальної ставки — задай рахунок у ⚙ (фейкові можна завжди)</span>';
+    }
+  }
+  $('ladder').innerHTML=html;
+}
+function renderControls(){
+  if(inSuspense()&&$('subRed').textContent!=='')return;
+  var pl=S.plan||planFor(S.balance,S.steps);
+  var k=pl?Math.min(S.step,pl.steps-1):0;
+  var canDbl=!!pl&&(pl.steps-S.step)>=2;
+  if(!canDbl&&S.dbl)S.dbl=false;
+  var amt;
+  if(!pl)amt='💰 нема грошей';
+  else if(S.dbl)amt='💰 ×2 · '+fmt(pl.bets[k]+pl.bets[k+1])+' ₴';
+  else amt='💰 '+fmt(pl.bets[k])+' ₴';
+  $('subRed').textContent=amt;
+  $('subBlack').textContent=amt;
+  var b=$('btnDbl');
+  b.classList.toggle('on',S.dbl);
+  b.classList.toggle('off',!canDbl);
+  $('dblSub').textContent=!canDbl
+    ?'недоступно'
+    :(S.dbl
+      ?(fmt(pl.bets[S.step])+'+'+fmt(pl.bets[S.step+1])+' = '+fmt(pl.bets[S.step]+pl.bets[S.step+1])+' ₴')
+      :'два кроки за раз');
+}
+function renderTags(){
+  var html='<span class="tagLbl">Мітка:</span>',i;
+  for(i=0;i<TAGS.length;i++){
+    html+='<button class="tag'+(S.tagSel===TAGS[i]?' on':'')+'" data-tag="'+TAGS[i]+'">'+TAGS[i]+'</button>';
+  }
+  $('tagRow').innerHTML=html;
+}
+function renderTimer(){
+  var lbl,secTxt,fill;
+  if(inSuspense()){
+    lbl='Дивимось результат…';secTxt='';fill=100;
+    document.body.classList.add('spinPhase');
+  }else{
+    var left=Math.max(0,S.phaseEnd-Date.now());
+    var dur=S.phase==='bet'?BET_MS:SPIN_MS;
+    lbl=S.phase==='bet'?'Ставки відкрито':'Крутиться…';
+    secTxt=Math.ceil(left/1000)+'с';
+    fill=Math.max(0,Math.min(100,left/dur*100));
+    document.body.classList.toggle('spinPhase',S.phase==='spin');
+  }
+  $('phSec').textContent=secTxt;
+  $('phFill').style.width=fill+'%';
+  if($('phLbl').textContent!==lbl)$('phLbl').textContent=lbl;
+}
+function revealFx(){
+  var L=S.last;
+  if(!L||L.kind!=='bet')return;
+  popAt=Date.now();
+  if(L.mode==='real'){
+    if(L.hit){toast('✓ Вгадав! +'+fmt(L.delta)+' ₴','good');confetti(16);}
+    else if(L.bust)toast('💥 Серія програна — драбина спочатку','bad');
+    else toast('✗ Мимо · −'+fmt(L.amount)+' ₴','bad');
+  }else{
+    toast(L.hit?'✓ Вгадав (фейк)':'✗ Мимо (фейк)',L.hit?'good':'info');
+  }
+  if(pendMillion){
+    pendMillion=false;
+    setTimeout(function(){toast('🏆 МІЛЬЙОН! ТИ ЗРОБИВ ЦЕ! 🏆','gold');confetti(140);},1200);
+  }
+}
+
+/* ---- тост і конфеті ---- */
+var toastTmr=null;
+function toast(txt,kind){
+  var el=$('toast');
+  el.textContent=txt;
+  el.className='on '+(kind||'info');
+  clearTimeout(toastTmr);
+  toastTmr=setTimeout(function(){el.className='';},3000);
+}
+function confetti(nn){
+  var fx=$('fx');fx.innerHTML='';
+  var colors=['#e94560','#ffd166','#2dd4a7','#4cc9f0','#f5f5ff'];
+  for(var i=0;i<nn;i++){
+    var s=document.createElement('i');
+    s.style.left=(Math.random()*100)+'%';
+    s.style.background=colors[i%colors.length];
+    var sz=Math.floor(6+Math.random()*7);
+    s.style.width=sz+'px';s.style.height=Math.max(4,Math.floor(sz*0.55))+'px';
+    s.style.animationDelay=(Math.random()*0.5)+'s';
+    s.style.animationDuration=(2.1+Math.random()*1.6)+'s';
+    s.style.setProperty('--r',Math.floor(Math.random()*720-360)+'deg');
+    fx.appendChild(s);
+  }
+  setTimeout(function(){fx.innerHTML='';},4400);
+}
+
+/* ---- модалки ---- */
+function syncSettings(){
+  $('inBal').value=S.balance;
+  $('vSteps').textContent=S.steps;
+  var pl=planFor(S.balance,S.steps);
+  $('planPrev').innerHTML=pl
+    ?('План на зараз: '+pl.bets.map(fmt).join(' → ')+'<br>разом '+fmt(pl.committed)+' ₴ · залишок '+fmt(pl.leftover)+' ₴'
+      +(pl.reduced?' · <span class="warn">вистачає лише на '+pl.steps+' '+ukr(pl.steps,'крок','кроки','кроків')+'</span>':''))
+    :'Замало грошей навіть на одну ставку 😢';
+  $('defLine').textContent='Дефолт: '+fmt(S.def.balance)+' ₴ · '+S.def.steps+' '
+    +ukr(S.def.steps,'крок','кроки','кроків')+' — кнопка ↺ вгорі повертає до цього';
+}
+function syncStats(){
+  var s=S.stats;
+  var totN=s.real.n+s.fake.n,totW=s.real.w+s.fake.w;
+  $('stTop').innerHTML=
+    '<div class="stBig">Вгадувань усього: <b>'+totN+'</b> · вгадав: <b class="ok">'+totW+'</b> · <b>'+pct(totW,totN)+'</b></div>'
+   +'<div class="stBig">💰 Реальні: <b>'+s.real.n+'</b> · вгадав <b class="ok">'+s.real.w+'</b> ('+pct(s.real.w,s.real.n)+')'
+   +' · разом: <b class="'+(s.profit>=0?'ok':'bad')+'">'+(s.profit>=0?'+':'')+fmt(s.profit)+' ₴</b></div>'
+   +'<div class="stBig">🎈 Фейкові: <b>'+s.fake.n+'</b> · вгадав <b class="ok">'+s.fake.w+'</b> ('+pct(s.fake.w,s.fake.n)+')</div>'
+   +'<div class="stBig">Рекорд рахунку: <b>'+fmt(s.maxBal)+' ₴</b></div>';
+  var th='';
+  TAGS.forEach(function(tg){
+    var g=s.tags[tg];
+    if(!g||!g.n)return;
+    th+='<div class="stRow"><b class="tagChip">'+tg+'</b>'
+      +'<span class="tagTxt">вгадав <b class="ok">'+g.w+'</b> із <b>'+g.n+'</b> · <b>'+pct(g.w,g.n)+'</b></span></div>';
+  });
+  if(s.untag.n){
+    th+='<div class="stRow"><b class="tagChip">без</b>'
+      +'<span class="tagTxt">вгадав <b class="ok">'+s.untag.w+'</b> із <b>'+s.untag.n+'</b> · <b>'+pct(s.untag.w,s.untag.n)+'</b></span></div>';
+  }
+  $('stTags').innerHTML=th||'<div class="stEmpty">Тапни мітку (100%, ++, M…) перед ставкою — і тут буде розбивка з відсотками</div>';
+}
+function armConfirm(btn,fn){
+  if(btn.dataset.armed){
+    delete btn.dataset.armed;
+    btn.textContent=btn.dataset.label;
+    fn();
+  }else{
+    btn.dataset.armed='1';
+    btn.dataset.label=btn.textContent;
+    btn.textContent='Точно?';
+    setTimeout(function(){
+      if(btn.dataset.armed){delete btn.dataset.armed;btn.textContent=btn.dataset.label;}
+    },2600);
+  }
+}
+function resetLadder(){S.plan=null;S.step=0;}
+
+/* ---- обробники ---- */
+$('btnRed').addEventListener('click',function(){tapBet('r','real');});
+$('btnBlack').addEventListener('click',function(){tapBet('b','real');});
+$('btnFakeRed').addEventListener('click',function(){tapBet('r','fake');});
+$('btnFakeBlack').addEventListener('click',function(){tapBet('b','fake');});
+$('btnSkip').addEventListener('click',skipRound);
+$('btnDbl').addEventListener('click',function(){
+  var pl=S.plan||planFor(S.balance,S.steps);
+  if(!pl||(pl.steps-S.step)<2){toast('×2 недоступно — це останній крок драбини','info');return;}
+  S.dbl=!S.dbl;
+  save();renderControls();
+});
+$('tagRow').addEventListener('click',function(e){
+  var b=e.target;
+  while(b&&b!==this&&!(b.classList&&b.classList.contains('tag')))b=b.parentNode;
+  if(!b||b===this)return;
+  var tg=b.getAttribute('data-tag');
+  S.tagSel=S.tagSel===tg?null:tg;
+  save();renderTags();
+});
+var qrArm=0;
+$('btnQuickReset').addEventListener('click',function(){
+  if(inSuspense())return;
+  var now=Date.now();
+  if(now-qrArm<3000){
+    qrArm=0;
+    S.balance=S.def.balance;S.steps=S.def.steps;S.startBal=S.def.balance;
+    resetLadder();S.last=null;S.queued=null;S.pendingBet=null;S.dbl=false;S.revealAt=0;revealShown=true;S.tagSel=null;snap=null;
+    if(S.balance>S.stats.maxBal)S.stats.maxBal=S.balance;
+    save();render();
+    toast('↺ Скинуто: '+fmt(S.balance)+' ₴ · '+S.steps+' '+ukr(S.steps,'крок','кроки','кроків'),'good');
+  }else{
+    qrArm=now;
+    toast('Тапни ↺ ще раз — поверну дефолт ('+fmt(S.def.balance)+' ₴)','info');
+  }
+});
+$('btnSaveDef').addEventListener('click',function(){
+  S.def={balance:S.balance,steps:S.steps};
+  save();syncSettings();
+  toast('Дефолт збережено: '+fmt(S.def.balance)+' ₴ · '+S.def.steps+' '+ukr(S.def.steps,'крок','кроки','кроків'),'good');
+});
+$('btnSettings').addEventListener('click',function(){syncSettings();$('modalSet').classList.remove('hidden');});
+$('btnCloseSet').addEventListener('click',function(){$('modalSet').classList.add('hidden');});
+$('modalSet').addEventListener('click',function(e){if(e.target===this)this.classList.add('hidden');});
+$('btnStats').addEventListener('click',function(){syncStats();$('modalStats').classList.remove('hidden');});
+$('btnCloseStats').addEventListener('click',function(){$('modalStats').classList.add('hidden');});
+$('modalStats').addEventListener('click',function(e){if(e.target===this)this.classList.add('hidden');});
+$('sMinus').addEventListener('click',function(){S.steps=Math.max(1,S.steps-1);resetLadder();save();syncSettings();render();});
+$('sPlus').addEventListener('click',function(){S.steps=Math.min(MAXSTEPS,S.steps+1);resetLadder();save();syncSettings();render();});
+$('btnApplyBal').addEventListener('click',function(){
+  var v=Math.max(0,Math.min(99999999,Math.round(Number($('inBal').value)||0)));
+  S.balance=v;
+  S.startBal=v; /* нова точка відліку для відсотків */
+  resetLadder();
+  if(v>S.stats.maxBal)S.stats.maxBal=v;
+  save();syncSettings();render();
+  toast('Рахунок: '+fmt(v)+' ₴ · відлік відсотків спочатку','info');
+});
+$('btnResetStats').addEventListener('click',function(){
+  armConfirm(this,function(){
+    var keepMax=S.balance;
+    S.stats=freshStats();
+    S.stats.maxBal=keepMax;
+    S.last=null;
+    save();render();
+    toast('Статистику скинуто','info');
+  });
+});
+$('btnResetAll').addEventListener('click',function(){
+  armConfirm(this,function(){
+    S=defaults();
+    revealShown=true;
+    snap=null;
+    save();render();syncSettings();
+    toast('Гру скинуто — рахунок 310 ₴','info');
+  });
+});
+document.addEventListener('gesturestart',function(e){e.preventDefault();});
+document.addEventListener('visibilitychange',function(){if(!document.hidden){catchUp();renderTimer();}});
+
+/* ---- старт ---- */
+window.DBG={planFor:planFor,get state(){return S;},catchUp:catchUp,doBet:doBet,save:save,render:render};
+catchUp();
+render();
+setInterval(function(){
+  catchUp();
+  if(S.pendingBet&&Date.now()>=S.pendingBet.fireAt&&!inSuspense()){
+    var p=S.pendingBet;
+    S.pendingBet=null;
+    doBet(p.color,p.mode,p.tag,p.dbl);
+  }
+  if(S.revealAt&&!revealShown&&Date.now()>=S.revealAt){
+    revealShown=true;
+    snap=null; /* тепер можна показати новий баланс — разом із цифрою */
+    revealFx();
+    render();
+  }
+  renderTimer();
+},250);
+})();
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+  }
+</script>
+</body>
+</html>
