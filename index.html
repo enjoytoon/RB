@@ -17,6 +17,7 @@ html,body{height:100%}
 body{position:fixed;inset:0;overflow:hidden;background:#1a1a2e;color:#e8e8f2;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;touch-action:manipulation;overscroll-behavior:none}
 button{font-family:inherit;cursor:pointer;outline:none;color:inherit;background:none;border:0}
 #app{height:100%;max-width:440px;margin:0 auto;display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top,0px) + 8px) 12px calc(env(safe-area-inset-bottom,0px) + 14px)}
+#app>*{flex-shrink:0}
 header{display:flex;align-items:center;gap:6px}
 h1{font-size:12px;letter-spacing:2px;font-weight:700;color:#8f8fb3;text-transform:uppercase;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .icoBtn{width:38px;height:38px;border-radius:12px;background:#252547;color:#c9c9e8;font-size:18px;line-height:1;flex:none}
@@ -33,8 +34,8 @@ body.spinPhase #phLbl{color:#ffd166}
 #phTrack{margin-top:7px;height:4px;border-radius:2px;background:#31315a;overflow:hidden}
 #phFill{height:100%;border-radius:2px;background:#2dd4a7;width:100%;transition:width .25s linear}
 body.spinPhase #phFill{background:#ffd166}
-#big{min-height:158px;background:#20203c;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:14px;margin-top:10px;text-align:center}
-.bigNum{width:88px;height:88px;border-radius:50%;font-size:40px;font-weight:900;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.45)}
+#big{flex:1 0 auto;min-height:158px;background:#20203c;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:14px;margin-top:10px;text-align:center}
+.bigNum{flex:none;width:88px;height:88px;border-radius:50%;font-size:40px;font-weight:900;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.45)}
 .bigNum.r{background:radial-gradient(circle at 32% 28%,#ff4a4a,#b00505)}
 .bigNum.b{background:radial-gradient(circle at 32% 28%,#3a3a44,#0a0a0e);border:1px solid #44444e}
 .bigNum.g{background:radial-gradient(circle at 32% 28%,#2ecf7d,#067a3e)}
@@ -45,9 +46,14 @@ body.spinPhase #phFill{background:#ffd166}
 .bigRes .ok{color:#2dd4a7}
 .bigRes .bad{color:#ff6f6f}
 .bigSub{font-size:12px;color:#8f8fb3}
-.wheelBig{width:80px;height:80px;border-radius:50%;background:conic-gradient(#e01515 0 12.5%,#17171c 12.5% 25%,#e01515 25% 37.5%,#17171c 37.5% 50%,#e01515 50% 62.5%,#17171c 62.5% 75%,#e01515 75% 87.5%,#17171c 87.5% 100%);animation:rot 1.1s linear infinite;position:relative}
-.wheelBig::after{content:'';position:absolute;inset:16px;border-radius:50%;background:#20203c}
+.wheelBig{flex:none;width:64px;height:64px;border-radius:50%;background:conic-gradient(#e01515 0 12.5%,#17171c 12.5% 25%,#e01515 25% 37.5%,#17171c 37.5% 50%,#e01515 50% 62.5%,#17171c 62.5% 75%,#e01515 75% 87.5%,#17171c 87.5% 100%);animation:rot 1.6s linear infinite;position:relative}
+.wheelBig::after{content:'';position:absolute;inset:13px;border-radius:50%;background:#20203c}
 @keyframes rot{to{transform:rotate(360deg)}}
+.dotsBig{flex:none;display:flex;gap:12px;height:88px;align-items:center;justify-content:center}
+.dotsBig i{width:14px;height:14px;border-radius:50%;background:#4a4a72;animation:dotp 1.6s ease-in-out infinite}
+.dotsBig i:nth-child(2){animation-delay:.28s}
+.dotsBig i:nth-child(3){animation-delay:.56s}
+@keyframes dotp{0%,100%{opacity:.25}50%{opacity:1}}
 #histRow{display:flex;gap:3px;margin-top:8px}
 .hq{flex:1;aspect-ratio:1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;min-width:0}
 .hq.r{background:#c01111}
@@ -155,8 +161,8 @@ body.spinPhase #phFill{background:#ffd166}
   </div>
 
   <div id="fakeRow">
-    <button class="fakeBtn" id="btnFakeRed"><span class="dot r"></span>ЧЕРВОНЕ<span class="fakeSub">ФЕЙК · БЕЗ ГРОШЕЙ</span></button>
-    <button class="fakeBtn" id="btnFakeBlack"><span class="dot b"></span>ЧОРНЕ<span class="fakeSub">ФЕЙК · БЕЗ ГРОШЕЙ</span></button>
+    <button class="fakeBtn" id="btnFakeRed"><span class="dot r"></span>ЧЕРВОНЕ<span class="fakeSub">ФЕЙК</span></button>
+    <button class="fakeBtn" id="btnFakeBlack"><span class="dot b"></span>ЧОРНЕ<span class="fakeSub">ФЕЙК</span></button>
   </div>
 
   <div id="tagRow"></div>
@@ -452,9 +458,12 @@ function render(){
 }
 function renderBig(){
   var sus=inSuspense(),html='';
-  if(sus||S.phase==='spin'){
-    var lbl=sus?'Крутимо…':(S.queued?'Прийнято! Це число не рахується — ставка на наступне':'Крутиться… тапни колір — ставка на наступне число');
-    html='<div class="wheelBig"></div><div class="bigSub">'+lbl+'</div>';
+  if(sus){
+    html='<div class="wheelBig"></div><div class="bigSub">Крутимо…</div>';
+  }else if(S.phase==='spin'){
+    /* спокійні крапки замість колеса — нічого не обертається */
+    html='<div class="dotsBig"><i></i><i></i><i></i></div>'
+      +'<div class="bigSub">'+(S.queued?'Прийнято! Це число не рахується — ставка на наступне':'Крутиться… тапни колір — ставка на наступне число')+'</div>';
   }else{
     var L=S.last,n=L?L.n:S.hist[0];
     var pop=(Date.now()-popAt<1500)?' pop':'';
